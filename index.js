@@ -23,11 +23,26 @@ app.use(
   })
 );
 
+// custom middlewares
+app.use(function(req,res,next){
+  // declare a variable named
+  // date that is available for
+  // all hbs file to access
+  res.locals.date = Date();
+
+  next(); // forward the request to the next middleware
+          // or if there is no middleware,to the intended route function
+})
+
 const landingRoutes = require('./routes/landing.js');
+const productRoutes = require('./routes/products')
 
 async function main() {
-  app.use('/', landingRoutes);
-
+  app.get('/', function(req,res){
+    res.redirect('/landing');
+})
+  app.use('/landing', landingRoutes);
+  app.use('/products', productRoutes);
 }
 
 main();
