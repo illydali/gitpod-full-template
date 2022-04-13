@@ -1,0 +1,12 @@
+{{#extends 'base'}}
+
+{{#block "content"}}
+<h1>Brands Available</h1>
+<ul>
+    {{#each brands}}
+    <li>{{this.name}} - {{this.description}}</li>
+    {{/each}}
+</ul>
+{{/block}}
+
+{{/extends}}

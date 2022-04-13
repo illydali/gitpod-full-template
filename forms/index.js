@@ -25,7 +25,7 @@ var bootstrapField = function (name, object) {
     return '<div class="form-group">' + label + widget + error + '</div>';
 };
 
-const createProductForm = (categories) => {
+const createProductForm = (categories, tags) => {
     // first arg of forms.create takes in the config value
     // the key is the NAME of the <input type=...>
     // the value defines the properties of input
@@ -47,11 +47,17 @@ const createProductForm = (categories) => {
             'errorAfterField': true
         }),
         'category_id' : fields.string({
-            label: 'Category',
-            required: true,
+            'label': 'Category',
+            'required': true,
             'errorAfterField': true,
-            widget: widgets.select(),
-            choices: categories
+            'widget': widgets.select(), // use the dropdowns elect
+            'choices': categories
+        }),
+        'tags' : fields.string({
+            'required' : true,
+            'errorAfterField' : true,
+            'widget': widgets.multipleSelect(),
+            'choices': tags // [ [1, 'Snack'], [2, 'Healthy'] ]
         })
     })
 }

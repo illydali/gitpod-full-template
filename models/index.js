@@ -16,10 +16,13 @@ const Product = bookshelf.model('Product', {
     // function name is that of the model, singular form, in lower case
     category: function() {
         return this.belongsTo('Category')
-    }
+    },
     // for M:N
     // the name of the function
     // is that of the Model that it is related to, in lower case and plural
+    tags: function() {
+        return this.belongsToMany('Tag')
+    }
 });
 
 // name of the table = all lower case, plural
@@ -28,4 +31,18 @@ const Product = bookshelf.model('Product', {
 const Category = bookshelf.model('Category',{
     tableName: 'categories',
 })
-module.exports = { Product, Category };
+
+// name of the table = all lower case, plural
+// name of model = first alphabet upper case, singular
+const Brand = bookshelf.model('Brand',{
+    tableName: 'brands'
+})
+
+const Tag = bookshelf.model('Tag', {
+    'tableName':'tags',
+    products:function(){
+        return this.belongsToMany('Product')
+    }
+})
+
+module.exports = { Product, Category, Brand, Tag };
