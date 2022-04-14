@@ -20,7 +20,8 @@ async function getProductById(productId) {
     const product = await Product.where({
         'id': productId
     }).fetch({
-        'require': true // will cause an error if not found
+        'require': true, // will cause an error if not found
+        'withRelated':['category', 'tags']  // load in the associated category and tags
     })
     return product;
 }
@@ -98,7 +99,7 @@ router.post('/create', async (req, res) => {
                 // add new tags to the M:n tags relationship
                 await product.tags().attach(tags.split(','));
             }
-
+            req.flash('success_messages', `New Product ${product.get('name')} has been created`)
             res.redirect('/products');
         },
         'error': async (form) => {
@@ -117,7 +118,7 @@ router.get('/:id/update', async (req, res) => {
 
     const allCategories = await getAllCategories();
     const allTags = await getAllTags(); 
-
+    
     // create the product form
     const form = createProductForm(allCategories, allTags);
 
@@ -136,7 +137,7 @@ router.get('/:id/update', async (req, res) => {
 
     let selectedTags = await product.related('tags').pluck('id');
     form.fields.tags.value = selectedTags;
-
+    console.log(selectedTags)
     res.render('products/update', {
         'form': form.toHTML(bootstrapField),
         'product': product.toJSON()
@@ -165,10 +166,10 @@ router.post('/:id/update', async (req, res) => {
             // handle tags 
 
             let selectedTagIds = tags.split(',');
-
+            console.log(selectedTagIds)
             // get all the existing tags
             let existingTags = await product.related('tags').pluck('id');
-            
+            console.log(existingTags)
             // remove all the tags that are not selected anymore
             let toRemove = existingTags.filter( id => selectedTagIds.includes(id) === false); 
 
@@ -177,7 +178,7 @@ router.post('/:id/update', async (req, res) => {
 
             // add in all the new tags
             await product.tags().attach(selectedTagIds); 
-
+            
             res.redirect('/products');
         },
         'error': async (form) => {

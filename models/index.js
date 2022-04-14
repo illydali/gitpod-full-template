@@ -11,7 +11,7 @@ const bookshelf = require('../bookshelf')
 // - the table name should always be in all lower case
 // plural form
 const Product = bookshelf.model('Product', {
-    tableName:'products',
+    'tableName':'products',
     // for belongs to:
     // function name is that of the model, singular form, in lower case
     category: function() {
@@ -29,13 +29,13 @@ const Product = bookshelf.model('Product', {
 // name of model = first alphabet upper case, singular
 
 const Category = bookshelf.model('Category',{
-    tableName: 'categories',
+    'tableName': 'categories',
 })
 
 // name of the table = all lower case, plural
 // name of model = first alphabet upper case, singular
 const Brand = bookshelf.model('Brand',{
-    tableName: 'brands'
+    'tableName': 'brands'
 })
 
 const Tag = bookshelf.model('Tag', {
@@ -45,4 +45,8 @@ const Tag = bookshelf.model('Tag', {
     }
 })
 
-module.exports = { Product, Category, Brand, Tag };
+const User = bookshelf.model('User', {
+    'tableName': 'users'
+})
+
+module.exports = { Product, Category, Brand, Tag, User };
