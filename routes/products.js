@@ -3,7 +3,10 @@ const router = express.Router();
 
 // #1 import in the Product model
 const {
-    Product, Category, Brand, Tag,
+    Product,
+    Category,
+    Brand,
+    Tag,
 } = require('../models')
 // import in the Forms
 const {
@@ -11,6 +14,11 @@ const {
     createProductForm
 } = require('../forms');
 
+
+// import in the CheckIfAuthenticated middleware
+const {
+    checkIfAuthenticated
+} = require('../middlewares');
 
 // create function to get product by id from mysql since this will be used repeatedly especially
 // when doing CRUD
@@ -21,21 +29,21 @@ async function getProductById(productId) {
         'id': productId
     }).fetch({
         'require': true, // will cause an error if not found
-        'withRelated':['category', 'tags']  // load in the associated category and tags
+        'withRelated': ['category', 'tags'] // load in the associated category and tags
     })
     return product;
 }
 
 async function getAllCategories() {
-    const allCategories = await Category.fetchAll().map( category => {
-        return [ category.get('id'), category.get('name')]
+    const allCategories = await Category.fetchAll().map(category => {
+        return [category.get('id'), category.get('name')]
     })
     return allCategories;
 }
 
 async function getAllTags() {
-    const allTags = await Tag.fetchAll().map( tag => {
-        return [ tag.get('id'), tag.get('name') ]
+    const allTags = await Tag.fetchAll().map(tag => {
+        return [tag.get('id'), tag.get('name')]
     })
     return allTags;
 }
@@ -56,7 +64,7 @@ router.get('/', async (req, res) => {
 })
 
 // -- TO CREATE AKA ADD NEW --
-router.get('/create', async (req, res) => {
+router.get('/create', checkIfAuthenticated, async (req, res) => {
 
     const allCategories = await getAllCategories();
     const allTags = await getAllTags();
@@ -67,9 +75,9 @@ router.get('/create', async (req, res) => {
 })
 
 // -- TO CREATE AKA ADD NEW --
-router.post('/create', async (req, res) => {
+router.post('/create', checkIfAuthenticated, async (req, res) => {
     const allCategories = await getAllCategories();
-    const allTags = await getAllTags(); 
+    const allTags = await getAllTags();
     const form = createProductForm(allCategories, allTags);
     form.handle(req, {
         'success': async (form) => {
@@ -117,8 +125,8 @@ router.get('/:id/update', async (req, res) => {
     const product = await getProductById(req.params.id);
 
     const allCategories = await getAllCategories();
-    const allTags = await getAllTags(); 
-    
+    const allTags = await getAllTags();
+
     // create the product form
     const form = createProductForm(allCategories, allTags);
 
@@ -158,7 +166,10 @@ router.post('/:id/update', async (req, res) => {
             // extract out form.data.tags into the tags variable
             // all the other keys/vaues from form.data will go 
             // into productData variable as an object
-            let { tags, ...productData } = form.data;
+            let {
+                tags,
+                ...productData
+            } = form.data;
 
             product.set(productData);
             product.save();
@@ -171,14 +182,14 @@ router.post('/:id/update', async (req, res) => {
             let existingTags = await product.related('tags').pluck('id');
             console.log(existingTags)
             // remove all the tags that are not selected anymore
-            let toRemove = existingTags.filter( id => selectedTagIds.includes(id) === false); 
+            let toRemove = existingTags.filter(id => selectedTagIds.includes(id) === false);
 
             await product.tags().detach(toRemove); // -- detach takes in an array of ids
-                                                   // -- those ids will be removed from the relationship
+            // -- those ids will be removed from the relationship
 
             // add in all the new tags
-            await product.tags().attach(selectedTagIds); 
-            
+            await product.tags().attach(selectedTagIds);
+
             res.redirect('/products');
         },
         'error': async (form) => {
@@ -209,7 +220,7 @@ router.post(':id/delete', async (req, res) => {
 })
 
 
-router.get('/brands', async (req,res)=>{
+router.get('/brands', async (req, res) => {
     let brands = await Brand.collection().fetch();
     res.render('products/brands', {
         'brands': brands.toJSON()

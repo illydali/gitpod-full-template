@@ -1,5 +1,13 @@
 const express = require("express");
 const router = express.Router();
+const crypto = require('crypto');
+
+// using nodejs built in crypto module to hash users password
+const getHashedPassword = (password) => {
+    const sha256 = crypto.createHash('sha256');
+    const hash = sha256.update(password).digest('base64');
+    return hash;
+}
 
 // import in the User model
 const {
@@ -26,7 +34,7 @@ router.post('/register', (req, res) => {
         success: async (form) => {
             const user = new User({
                 'username': form.data.username,
-                'password': form.data.password,
+                'password': getHashedPassword(form.data.password),
                 'email': form.data.email
             });
             await user.save();
@@ -63,10 +71,10 @@ router.post('/login', (req, res) => {
 
             if (!user) {
                 req.flash('error_messages', `Sorry your login details are wrong`)
-                res.redirect('users/login')
+                res.redirect('/users/login')
             } else {
                 // 2. if the user exists, check if the password matches the entered password
-                if (user.get('password') === form.data.password) {
+                if (user.get('password') === getHashedPassword(form.data.password)) {
 
                     // store the user info in the section
                     req.session.user = {
@@ -76,17 +84,17 @@ router.post('/login', (req, res) => {
                     }
 
                     req.flash('success_messages', `Successfully logged in!`);
-                    res.redirect('/users/profile');
+                    res.redirect('/products');
 
                 } else {
 
                     req.flash('error_messages', `Sorry your login details are incorrect`)
-                    res.redirect('users/login')
+                    res.redirect('/users/login')
                 }
             }
         },
         'error': function (form) {
-            res.render('users/login', {
+            res.render('/users/login', {
                 'form': form.toHTML(bootstrapField)
             })
         }
@@ -105,7 +113,7 @@ router.get('/profile', async (req,res) => {
             'required' : true
         })
 
-        res.render('users/profile' , {
+        res.render('/users/profile' , {
             'user' : user.toJSON()
         })
     }
