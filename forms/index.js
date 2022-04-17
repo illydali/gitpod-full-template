@@ -58,6 +58,9 @@ const createProductForm = (categories, tags) => {
             'errorAfterField' : true,
             'widget': widgets.multipleSelect(),
             'choices': tags // [ [1, 'Snack'], [2, 'Healthy'] ]
+        }),
+        'image_url' : fields.string({
+            'widget': widgets.hidden()
         })
     })
 }

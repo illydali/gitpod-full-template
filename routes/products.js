@@ -70,7 +70,10 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
     const allTags = await getAllTags();
     const productForm = createProductForm(allCategories, allTags);
     res.render('products/create', {
-        'form': productForm.toHTML(bootstrapField)
+        'form': productForm.toHTML(bootstrapField),
+        cloudinaryName: process.env.CLOUDINARY_NAME,
+        cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+        cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
     })
 })
 
@@ -137,6 +140,10 @@ router.get('/:id/update', async (req, res) => {
     form.fields.description.value = product.get('description');
     form.fields.category_id.value = product.get('category_id');
 
+    // 1 - set the image url in the product form
+    form.fields.image_url.value = product.get('image_url');
+
+
     // get all the existing tags
     // we use the .related function to access the relationship
     // .fetch will fetch all the tags related to the product
@@ -148,7 +155,12 @@ router.get('/:id/update', async (req, res) => {
     console.log(selectedTags)
     res.render('products/update', {
         'form': form.toHTML(bootstrapField),
-        'product': product.toJSON()
+        'product': product.toJSON(),
+        // 2 - send to the HBS file the cloudinary information
+        cloudinaryName: process.env.CLOUDINARY_NAME,
+        cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+        cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
+
     })
 })
 

@@ -11,6 +11,9 @@ const FileStore = require('session-file-store')(session);
 // adding in csurf
 const csrf = require('csurf')
 
+// adding in cloudinary
+const cloudinaryRoutes = require('./routes/cloudinary.js')
+
 // create an instance of express app
 let app = express();
 
@@ -101,7 +104,8 @@ async function main() {
 })
   app.use('/landing', landingRoutes);
   app.use('/products', productRoutes);
-  app.use('/users', userRoutes)
+  app.use('/users', userRoutes);
+  app.use('/cloudinary', cloudinaryRoutes);
 }
 
 main();
