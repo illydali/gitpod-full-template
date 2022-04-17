@@ -71,9 +71,9 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
     const productForm = createProductForm(allCategories, allTags);
     res.render('products/create', {
         'form': productForm.toHTML(bootstrapField),
-        cloudinaryName: process.env.CLOUDINARY_NAME,
-        cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
-        cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
+        'cloudinaryName': process.env.CLOUDINARY_NAME,
+        'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+        'cloudinaryPreset': process.env.CLOUDINARY_UPLOAD_PRESET
     })
 })
 
@@ -99,6 +99,7 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
             product.set('cost', form.data.cost);
             product.set('description', form.data.description);
             product.set('category_id', form.data.category_id);
+            product.set('image_url', form.data.image_url);
             await product.save();
 
             // we can create the M:N relationship after the product is created
@@ -115,7 +116,10 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
         },
         'error': async (form) => {
             res.render('products/create', {
-                'form': form.toHTML(bootstrapField)
+                'form': form.toHTML(bootstrapField),
+                'cloudinaryName': process.env.CLOUDINARY_NAME,
+                'cloudinaryApiKey':process.env.CLOUDINARY_API_KEY,
+                'cloudinaryPreset':process.env.CLOUDINARY_UPLOAD_PRESET
             })
         }
     })
@@ -157,9 +161,9 @@ router.get('/:id/update', async (req, res) => {
         'form': form.toHTML(bootstrapField),
         'product': product.toJSON(),
         // 2 - send to the HBS file the cloudinary information
-        cloudinaryName: process.env.CLOUDINARY_NAME,
-        cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
-        cloudinaryPreset: process.env.CLOUDINARY_UPLOAD_PRESET
+        'cloudinaryName': process.env.CLOUDINARY_NAME,
+        'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+        'cloudinaryPreset': process.env.CLOUDINARY_UPLOAD_PRESET
 
     })
 })

@@ -11,6 +11,7 @@
             <th>Description</th>
             <th>Category</th>
             <th>Tags</th>
+            <th>Image</th>
             <th></th>
         </tr>
 
@@ -37,6 +38,11 @@
                     {{#each this.tags}}
                     <span class="badge bg-primary">{{this.name}}</span>
                     {{/each}}
+                </td>
+                <td>
+                    {{#if this.image_url}}
+                        <img src="{{this.image_url}}" class="img-fluid"/>
+                    {{/if}}
                 </td>
                 <td>
                     <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
