@@ -39,7 +39,7 @@ router.post('/register', (req, res) => {
             });
             await user.save();
             req.flash("success_messages", "User signed up successfully!");
-            res.redirect('/users/login')
+            res.redirect('/')
         },
         'error': (form) => {
             // display validation errors to user
@@ -83,8 +83,8 @@ router.post('/login', (req, res) => {
                         'email': user.get('email')
                     }
 
-                    req.flash('success_messages', `Successfully logged in!`);
-                    res.redirect('/products');
+                    req.flash('success_messages', `Welcome back, ` + user.get('username'));
+                    res.redirect('/users/profile');
 
                 } else {
 
@@ -94,6 +94,7 @@ router.post('/login', (req, res) => {
             }
         },
         'error': function (form) {
+            req.flash("error_messages", "There are some problems logging you in. Please fill in the form again")
             res.render('/users/login', {
                 'form': form.toHTML(bootstrapField)
             })
@@ -113,7 +114,7 @@ router.get('/profile', async (req,res) => {
             'required' : true
         })
 
-        res.render('/users/profile' , {
+        res.render('users/profile' , {
             'user' : user.toJSON()
         })
     }

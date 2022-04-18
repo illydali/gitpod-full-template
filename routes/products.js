@@ -21,33 +21,36 @@ const {
     checkIfAuthenticated
 } = require('../middlewares');
 
-// create function to get product by id from mysql since this will be used repeatedly especially
-// when doing CRUD
-async function getProductById(productId) {
-    // eqv of
-    // select * from products where id = ${productId}
-    const product = await Product.where({
-        'id': productId
-    }).fetch({
-        'require': true, // will cause an error if not found
-        'withRelated': ['category', 'tags'] // load in the associated category and tags
-    })
-    return product;
-}
+// import in the DAL 
+const dataLayer = require('../dal/products')
 
-async function getAllCategories() {
-    const allCategories = await Category.fetchAll().map(category => {
-        return [category.get('id'), category.get('name')]
-    })
-    return allCategories;
-}
+// // create function to get product by id from mysql since this will be used repeatedly especially
+// // when doing CRUD
+// async function getProductById(productId) {
+//     // eqv of
+//     // select * from products where id = ${productId}
+//     const product = await Product.where({
+//         'id': productId
+//     }).fetch({
+//         'require': true, // will cause an error if not found
+//         'withRelated': ['category', 'tags'] // load in the associated category and tags
+//     })
+//     return product;
+// }
 
-async function getAllTags() {
-    const allTags = await Tag.fetchAll().map(tag => {
-        return [tag.get('id'), tag.get('name')]
-    })
-    return allTags;
-}
+// async function getAllCategories() {
+//     const allCategories = await Category.fetchAll().map(category => {
+//         return [category.get('id'), category.get('name')]
+//     })
+//     return allCategories;
+// }
+
+// async function getAllTags() {
+//     const allTags = await Tag.fetchAll().map(tag => {
+//         return [tag.get('id'), tag.get('name')]
+//     })
+//     return allTags;
+// }
 
 // -- TO READ FROM MYSQL --
 router.get('/', async (req, res) => {
@@ -62,10 +65,10 @@ router.get('/', async (req, res) => {
 
     // -- search form 
 
-    const allCategories = await getAllCategories();
+    const allCategories = await dataLayer.getAllCategories();
     // this code adds an ALL option in our select dropdown
     allCategories.unshift(["", "All"])
-    const allTags = await getAllTags();
+    const allTags = await dataLayer.getAllTags();
 
     const searchForm = createSearchForm(allCategories, allTags)
 
@@ -151,8 +154,8 @@ router.get('/', async (req, res) => {
 // -- TO CREATE AKA ADD NEW --
 router.get('/create', checkIfAuthenticated, async (req, res) => {
 
-    const allCategories = await getAllCategories();
-    const allTags = await getAllTags();
+    const allCategories = await dataLayer.getAllCategories();
+    const allTags = await dataLayer.getAllTags();
     const productForm = createProductForm(allCategories, allTags);
     res.render('products/create', {
         'form': productForm.toHTML(bootstrapField),
@@ -164,8 +167,8 @@ router.get('/create', checkIfAuthenticated, async (req, res) => {
 
 // -- TO CREATE AKA ADD NEW --
 router.post('/create', checkIfAuthenticated, async (req, res) => {
-    const allCategories = await getAllCategories();
-    const allTags = await getAllTags();
+    const allCategories = await dataLayer.getAllCategories();
+    const allTags = await dataLayer.getAllTags();
     const form = createProductForm(allCategories, allTags);
     form.handle(req, {
         'success': async (form) => {
@@ -214,10 +217,10 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
 // -- TO EDIT -- 
 // -- GET route to display edit
 router.get('/:id/update', async (req, res) => {
-    const product = await getProductById(req.params.id);
+    const product = await dataLayer.getProductById(req.params.id);
 
-    const allCategories = await getAllCategories();
-    const allTags = await getAllTags();
+    const allCategories = await dataLayer.getAllCategories();
+    const allTags = await dataLayer.getAllTags();
 
     // create the product form
     const form = createProductForm(allCategories, allTags);
@@ -257,7 +260,7 @@ router.get('/:id/update', async (req, res) => {
 // -- POST route to save edited info -- 
 router.post('/:id/update', async (req, res) => {
     // 1. fetch the product we wanna update 
-    const product = await getProductById(req.params.id);
+    const product = await dataLayer.getProductById(req.params.id);
 
     // 2. handle the form
     const form = createProductForm();
@@ -305,7 +308,7 @@ router.post('/:id/update', async (req, res) => {
 // -- TO DELETE -- 
 // first get product ID
 router.get('/:id/delete', async (req, res) => {
-    const product = await getProductById(req.params.id);
+    const product = await dataLayer.getProductById(req.params.id);
 
     res.render('products/delete', {
         'product': product.toJSON()
@@ -315,7 +318,7 @@ router.get('/:id/delete', async (req, res) => {
 // -- TO DELETE -- 
 // then process delete post route
 router.post(':id/delete', async (req, res) => {
-    const product = await getProductById(req.params.id);
+    const product = await dataLayer.getProductById(req.params.id);
     await product.destroy();
     res.redirect('/products');
 })
