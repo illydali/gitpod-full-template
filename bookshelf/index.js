@@ -2,11 +2,12 @@
 // which we call immedaitely with an object
 // as the first argument
 const knex = require('knex')({
-    client: 'mysql',  // which db tech are we using
+    client: process.env.DB_DRIVER,  // which db tech are we using
     connection:{
-        user:'foo',
-        password:'bar',
-        database:'organic'
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE,
+        host: process.env.DB_HOST
     }
 })
 

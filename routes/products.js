@@ -11,7 +11,8 @@ const {
 // import in the Forms
 const {
     bootstrapField,
-    createProductForm
+    createProductForm,
+    createSearchForm
 } = require('../forms');
 
 
@@ -50,17 +51,101 @@ async function getAllTags() {
 
 // -- TO READ FROM MYSQL --
 router.get('/', async (req, res) => {
-    // #2 - fetch all the products (ie, SELECT * from products)
-    // The NAME of the MODEL always refer
-    // to the entire table
-    let products = await Product.collection().fetch({
-        withRelated: ['category', 'tags']
-    });
+    // -- OLD CODE
+    // // #2 - fetch all the products (ie, SELECT * from products)
+    // // The NAME of the MODEL always refer
+    // // to the entire table
+    // let products = await Product.collection().fetch({
+    //     withRelated: ['category', 'tags']
+    // });
+    // -- END OLD CODE
 
-    res.render('products/index', {
-        'products': products.toJSON()
-        // #3 - convert collection to JSON
+    // -- search form 
+
+    const allCategories = await getAllCategories();
+    // this code adds an ALL option in our select dropdown
+    allCategories.unshift(["", "All"])
+    const allTags = await getAllTags();
+
+    const searchForm = createSearchForm(allCategories, allTags)
+
+    // 1. Begin with an always true query
+    // ... creating a query object ( a quey object represents one SQL statement )
+    // this is just a query and has not been executed yet
+    let q = Product.collection(); // <-- eqv to 'SELECT * FROM products WHERE 1'
+    searchForm.handle(req, {
+        'success': async function (form) {
+
+
+            // 2. check if user has provided any search parameters 
+            // 2b. for each search parameters that we have, add it to the always-true-query
+            if (form.data.name) {
+                q.where('name', 'like', '%' + form.data.name + '%')
+            }
+            if (form.data.min_cost) {
+                q.where('cost', '>=', form.data.min_cost);
+            }
+
+            if (form.data.max_cost) {
+                q.where('cost', '<=', form.data.max_cost);
+            }
+
+            if (form.data.category_id) {
+                q.where('category_id', '=', form.data.category_id)
+            }
+
+            if (form.data.tags) {
+                // joining in bookshelf: 
+                q.query('join', 'products_tags', 'products.id', 'product_id')
+                    .where('tag_id', 'in', form.data.tags.split(','))
+                // eqv in mysql
+                // SELECT * FROM products JOIN products_tags ON products.id = product_id
+                // WHERE tag_id in (1,4)
+
+            }
+
+
+            // 3. execute the query and fetch the results 
+            let products = await q.fetch({
+                withRelated: ['category', 'tags']
+            }); // execute the query
+
+            res.render('products/index', {
+                'products': products.toJSON(),
+                'searchForm': form.toHTML(bootstrapField)
+            })
+        },
+        'error': async function (form) {
+
+            let products = await q.fetch({
+                withRelated: ['category', 'tags']
+            })
+
+            res.render('products/index', {
+                'searchForm': form.toHTML(bootstrapField),
+                'products': products.toJSON()
+            })
+        },
+        'empty': async function (form) {
+            let products = await q.fetch({
+                withRelated: ['category', 'tags']
+
+            })
+
+            res.render('products/index', {
+                'searchForm': form.toHTML(bootstrapField),
+                'products': products.toJSON()
+            })
+        }
     })
+
+    // -- OLD CODE 
+    // res.render('products/index', {
+    //     'products': products.toJSON(),
+    //     'searchForm': form.toHTML(bootstrapField)
+    //     // #3 - convert collection to JSON
+    // })
+    // -- OLD CODE
 })
 
 // -- TO CREATE AKA ADD NEW --
@@ -118,8 +203,8 @@ router.post('/create', checkIfAuthenticated, async (req, res) => {
             res.render('products/create', {
                 'form': form.toHTML(bootstrapField),
                 'cloudinaryName': process.env.CLOUDINARY_NAME,
-                'cloudinaryApiKey':process.env.CLOUDINARY_API_KEY,
-                'cloudinaryPreset':process.env.CLOUDINARY_UPLOAD_PRESET
+                'cloudinaryApiKey': process.env.CLOUDINARY_API_KEY,
+                'cloudinaryPreset': process.env.CLOUDINARY_UPLOAD_PRESET
             })
         }
     })

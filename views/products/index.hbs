@@ -2,57 +2,63 @@
 
 {{#block 'content'}}
 <h1>Our Products</h1> 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Cost</th>
-            <th>Description</th>
-            <th>Category</th>
-            <th>Tags</th>
-            <th>Image</th>
-            <th></th>
-        </tr>
 
-    </thead>
-    <tbody>
-        {{#each products}}
+    <form method="GET">
+        {{{searchForm}}}
+        <input type="submit" class="btn btn-primary mt-3" value="Search"> 
+    </form>
+
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    {{this.id}}
-                </td>
-                <td>
-                    {{this.name}}
-                </td>
-                <td>
-                    {{this.cost}}
-                </td>
-                <td>
-                    {{this.description}}
-                </td>
-                <td>
-                    {{this.category.name}}
-                </td>
-                <td>
-                    {{#each this.tags}}
-                    <span class="badge bg-primary">{{this.name}}</span>
-                    {{/each}}
-                </td>
-                <td>
-                    {{#if this.image_url}}
-                        <img src="{{this.image_url}}" class="img-fluid"/>
-                    {{/if}}
-                </td>
-                <td>
-                    <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
-                    <a href="/products/{{this.id}}/delete" class="btn btn-danger btn-sm">Delete</a>
-            </td>
-
+                <th>ID</th>
+                <th>Name</th>
+                <th>Cost</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Tags</th>
+                <th>Image</th>
+                <th></th>
             </tr>
-        {{/each}}
-    </tbody>
-</table>
+
+        </thead>
+        <tbody>
+            {{#each products}}
+                <tr>
+                    <td>
+                        {{this.id}}
+                    </td>
+                    <td>
+                        {{this.name}}
+                    </td>
+                    <td>
+                        {{this.cost}}
+                    </td>
+                    <td>
+                        {{this.description}}
+                    </td>
+                    <td>
+                        {{this.category.name}}
+                    </td>
+                    <td>
+                        {{#each this.tags}}
+                        <span class="badge bg-primary">{{this.name}}</span>
+                        {{/each}}
+                    </td>
+                    <td>
+                        {{#if this.image_url}}
+                            <img src="{{this.image_url}}" class="img-fluid"/>
+                        {{/if}}
+                    </td>
+                    <td>
+                        <a href="/products/{{this.id}}/update" class="btn btn-primary btn-sm">Update</a>
+                        <a href="/products/{{this.id}}/delete" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+
+                </tr>
+            {{/each}}
+        </tbody>
+    </table>
 {{/block}}
 
 {{/extends}}
