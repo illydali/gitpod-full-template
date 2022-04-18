@@ -112,9 +112,10 @@ app.use(function (req, res, next) {
 // IMPORT IN THE ROUTES
 const landingRoutes = require('./routes/landing.js');
 const productRoutes = require('./routes/products.js');
-const userRoutes = require('./routes/users.js')
-const cloudinaryRoutes = require('./routes/cloudinary.js')
+const userRoutes = require('./routes/users.js');
+const cloudinaryRoutes = require('./routes/cloudinary.js');
 const shoppingCartRoutes = require('./routes/shoppingCart');
+const checkoutRoutes = require('./routes/checkout');
 const {
   checkIfAuthenticated
 } = require('./middlewares')
@@ -128,6 +129,7 @@ async function main() {
   app.use('/users', userRoutes);
   app.use('/cloudinary', cloudinaryRoutes);
   app.use('/cart', checkIfAuthenticated, shoppingCartRoutes);
+  app.use('/checkout', checkoutRoutes)
 }
 
 main();
